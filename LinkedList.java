@@ -17,30 +17,6 @@ public class LinkedList {
 	}
 	
 	/**
-	 * Gets the first node of the list
-	 * @return The first node of the list.
-	 */		
-	public Node getFirst() {
-		return this.first;
-	}
-
-	/**
-	 * Gets the last node of the list
-	 * @return The last node of the list.
-	 */		
-	public Node getLast() {
-		return this.last;
-	}
-	
-	/**
-	 * Gets the current size of the list
-	 * @return The size of the list.
-	 */		
-	public int getSize() {
-		return this.size;
-	}
-	
-	/**
 	 * Gets the node located at the given index in this list. 
 	 * 
 	 * @param index
@@ -54,10 +30,24 @@ public class LinkedList {
 			throw new IllegalArgumentException(
 					"index must be between 0 and size");
 		}
-		//// Replace the following statement with your code
-		return null;
+		Node pointer= first;
+		for (int i = 0; i < index; i++) {
+			pointer = pointer.next;
+		}
+		return pointer;
+	}
+
+	public Node getFirst() {
+		return first;
+	}
+
+	public Node getLast() {
+		return last;
 	}
 	
+	public int getSize() {
+		return size;
+	}
 	/**
 	 * Creates a new Node object that points to the given memory block, 
 	 * and inserts the node at the given index in this list.
@@ -78,7 +68,15 @@ public class LinkedList {
 	 *         if index is negative or greater than the list's size
 	 */
 	public void add(int index, MemoryBlock block) {
-		//// Write your code here
+		Node pointer = first;
+		Node newNode = new Node(block);
+		for (int i = 0; i < index - 1; i++) {
+			pointer = pointer.next;
+		}
+		Node temp = pointer.next;
+		pointer.next = newNode;
+		newNode.next = temp;
+		size++;
 	}
 
 	/**
@@ -89,7 +87,17 @@ public class LinkedList {
 	 *        the given memory block
 	 */
 	public void addLast(MemoryBlock block) {
-		//// Write your code here
+		Node newNode = new Node(block);
+
+		if (last == null) {
+			first = newNode;
+			last = first;
+			return;
+		}
+
+		last.next = newNode;
+		last = newNode;
+		size++;
 	}
 	
 	/**
@@ -100,7 +108,10 @@ public class LinkedList {
 	 *        the given memory block
 	 */
 	public void addFirst(MemoryBlock block) {
-		//// Write your code here
+		Node newNode = new Node(block);
+		newNode.next = first;
+		first = newNode;
+		size++;
 	}
 
 	/**
@@ -113,8 +124,8 @@ public class LinkedList {
 	 *         if index is negative or greater than or equal to size
 	 */
 	public MemoryBlock getBlock(int index) {
-		//// Replace the following statement with your code
-		return null;
+
+		return getNode(index).block;
 	}	
 
 	/**
@@ -125,7 +136,15 @@ public class LinkedList {
 	 * @return the index of the block, or -1 if the block is not in this list
 	 */
 	public int indexOf(MemoryBlock block) {
-		//// Replace the following statement with your code
+		ListIterator itr = iterator();
+		int index = 0;
+
+		while(itr.hasNext()) {
+			if (itr.next() == block) {
+				return index;
+			}
+			index++;
+		}
 		return -1;
 	}
 
@@ -136,7 +155,20 @@ public class LinkedList {
 	 *        the node that will be removed from this list
 	 */
 	public void remove(Node node) {
-		//// Write your code here
+		ListIterator itr = iterator();
+		Node prevNode = null;
+		Node nextNode;
+
+		while (itr.hasNext()) {
+			nextNode = itr.current.next;
+			if (itr.current == node) {
+				prevNode.next = nextNode;
+				itr.current = null;
+				return;
+			}
+			prevNode = itr.current;
+			itr.next();
+		}
 	}
 
 	/**
@@ -147,7 +179,15 @@ public class LinkedList {
 	 *         if index is negative or greater than or equal to size
 	 */
 	public void remove(int index) {
-		//// Write your code here
+		Node pointer = first;
+
+		for (int i = 0; i < index - 1; i++) {
+			pointer = pointer.next;
+		}
+
+		Node temp = pointer.next;
+		pointer.next = temp.next;
+		temp = null;
 	}
 
 	/**
@@ -158,7 +198,25 @@ public class LinkedList {
 	 *         if the given memory block is not in this list
 	 */
 	public void remove(MemoryBlock block) {
-		//// Write your code here
+
+		ListIterator itr = iterator();
+		Node prevNode = null;
+		Node nextNode;
+
+		while (itr.hasNext()) {
+			nextNode = itr.current.next;
+			if (itr.current.block == block) {
+				if (prevNode == null) {
+					first = nextNode;
+					return;
+				}
+				prevNode.next = nextNode;
+				itr.current = null;
+				return;
+			}
+			prevNode = itr.current;
+			itr.next();
+		}
 	}	
 
 	/**
@@ -171,8 +229,15 @@ public class LinkedList {
 	/**
 	 * A textual representation of this list, for debugging.
 	 */
+	@Override
 	public String toString() {
-		//// Replace the following statement with your code
-		return "";
+		String str = "";
+		ListIterator itr = iterator();
+		while (itr.hasNext()) {
+			str += itr.current.block + "\n";
+			itr.next();
+		}
+
+		return str;
 	}
 }
