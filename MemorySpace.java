@@ -27,6 +27,15 @@ public class MemorySpace {
 		freeList.addLast(new MemoryBlock(0, maxSize));
 	}
 
+	public LinkedList getFreeList() {
+		return freeList;
+	}
+
+	public LinkedList getAllocatedList() {
+		return allocatedList;
+	}
+
+
 	/**
 	 * Allocates a memory block of a requested length (in words). Returns the
 	 * base address of the allocated block, or -1 if unable to allocate.
@@ -57,14 +66,19 @@ public class MemorySpace {
 	 *        the length (in words) of the memory block that has to be allocated
 	 * @return the base address of the allocated block, or -1 if unable to allocate
 	 */
-	public int malloc(int length) {		
+	public int malloc(int length) {
 		ListIterator itr = freeList.iterator();
+		
 		while (itr.hasNext()) {
-			if (itr.current.block.length >= length) {
-				MemoryBlock newBlock = new MemoryBlock(itr.current.block.baseAddress, length);
+			MemoryBlock current = itr.next();
+			if (current.length >= length) {
+				MemoryBlock newBlock = new MemoryBlock(current.baseAddress, length);
 				allocatedList.addLast(newBlock);
-				itr.current.block.baseAddress += length;
-				itr.current.block.length -= length;
+				current.baseAddress += length;
+				current.length -= length;
+				if (current.length == 0) {
+					freeList.remove(current);
+				}
 				return newBlock.baseAddress;
 			}
 		}
@@ -80,6 +94,10 @@ public class MemorySpace {
 	 *            the starting address of the block to freeList
 	 */
 	public void free(int address) {
+		
+		if (allocatedList.getFirst() == null) {
+			throw new IllegalArgumentException("index must be between 0 and size");
+		}
 		ListIterator itr = allocatedList.iterator();
 		MemoryBlock memoBlock;
 		
@@ -88,6 +106,7 @@ public class MemorySpace {
 			if (memoBlock.baseAddress == address) {
 				allocatedList.remove(memoBlock);
 				freeList.addLast(memoBlock);
+				return;
 			}
 			itr.next();
 		}
@@ -98,7 +117,7 @@ public class MemorySpace {
 	 * for debugging purposes.
 	 */
 	public String toString() {
-		return freeList.toString() + "\n" + allocatedList.toString();		
+		return freeList.toString() + "\n" + allocatedList.toString();
 	}
 	
 	/**
@@ -110,15 +129,22 @@ public class MemorySpace {
 		ListIterator itr1 = freeList.iterator();
 		ListIterator itr2 = freeList.iterator();
 
+		boolean flag = true;
+		int count = 0;
+
 		while (itr1.hasNext()) {
 			MemoryBlock itr1Current = itr1.current.block;
-			
-			while(itr2.hasNext()) {
+			flag = true;
+
+			while(itr2.hasNext() && flag) {
 				MemoryBlock itr2Current = itr2.current.block;
 				if (itr1Current.baseAddress + itr1Current.length == itr2Current.baseAddress){
 					itr1Current.length += itr2Current.length;
 					freeList.remove(itr2Current);
+					flag = true;
+					itr2.current = freeList.getFirst();
 				}
+				
 				itr2.next();
 			}
 			itr1.next();
