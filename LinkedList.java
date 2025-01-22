@@ -182,6 +182,7 @@ public class LinkedList {
 			if (itr.current == node) {
 				prevNode.next = nextNode;
 				itr.current = null;
+				size--;
 				return;
 			}
 			prevNode = itr.current;
@@ -206,6 +207,7 @@ public class LinkedList {
 		Node temp = pointer.next;
 		pointer.next = temp.next;
 		temp = null;
+		size--;
 	}
 
 	/**
@@ -226,10 +228,12 @@ public class LinkedList {
 			if (itr.current.block == block) {
 				if (prevNode == null) {
 					first = nextNode;
+					size--;
 					return;
 				}
 				prevNode.next = nextNode;
 				itr.current = null;
+				size--;
 				return;
 			}
 			prevNode = itr.current;
